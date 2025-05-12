@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}管理控制面板 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>管理控制面板</h2>
+        <p class="text-muted">系统状态和统计数据概览</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-school fa-3x mb-3 text-primary"></i>
+                <h4 class="card-title">{{ total_rooms }}</h4>
+                <p class="card-text">自习室</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-chair fa-3x mb-3 text-primary"></i>
+                <h4 class="card-title">{{ total_seats }}</h4>
+                <p class="card-text">座位</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                <h4 class="card-title">{{ total_users }}</h4>
+                <p class="card-text">用户</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calendar-check fa-3x mb-3 text-primary"></i>
+                <h4 class="card-title">{{ today_bookings }}</h4>
+                <p class="card-text">今日预约</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">最近预约记录</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>用户</th>
+                                <th>自习室</th>
+                                <th>座位号</th>
+                                <th>时间</th>
+                                <th>状态</th>
+                                <th>预约时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in recent_bookings %}
+                            <tr>
+                                <td>{{ booking.user.username }} ({{ booking.user.student_id }})</td>
+                                <td>{{ booking.seat.room.name }}</td>
+                                <td>{{ booking.seat.seat_number }}</td>
+                                <td>{{ booking.start_time.strftime('%Y-%m-%d %H:%M') }} - {{ booking.end_time.strftime('%H:%M') }}</td>
+                                <td>
+                                    {% if booking.status == 'confirmed' %}
+                                        <span class="badge bg-warning">待签到</span>
+                                    {% elif booking.status == 'checked_in' %}
+                                        <span class="badge bg-success">已签到</span>
+                                    {% elif booking.status == 'completed' %}
+                                        <span class="badge bg-primary">已完成</span>
+                                    {% elif booking.status == 'cancelled' %}
+                                        <span class="badge bg-secondary">已取消</span>
+                                    {% elif booking.status == 'expired' %}
+                                        <span class="badge bg-danger">已过期</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ booking.booking_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{{ url_for('admin.bookings') }}" class="btn btn-primary">查看所有预约</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">快速操作</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('admin.rooms') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-list me-1"></i> 管理自习室
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('admin.bookings') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-calendar-alt me-1"></i> 管理预约
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('admin.statistics') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-chart-bar me-1"></i> 使用统计
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('admin.verify_codes') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-qrcode me-1"></i> 签到码管理
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">系统状态</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        系统状态
+                        <span class="badge bg-success">正常运行</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        数据库状态
+                        <span class="badge bg-success">已连接</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        调度器状态
+                        <span class="badge bg-success">已启动</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        自习室开放状态
+                        <span class="badge bg-success">正常</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

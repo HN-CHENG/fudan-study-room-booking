@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}注册 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">用户注册</h2>
+                
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">学号</label>
+                        <input type="text" class="form-control" id="student_id" name="student_id" required autofocus>
+                        <div class="form-text">请输入您的复旦大学学号</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">姓名</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="form-text">请使用复旦邮箱（@fudan.edu.cn）</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">请设置至少6位的密码</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">注册</button>
+                    </div>
+                </form>
+                
+                <div class="mt-3 text-center">
+                    <p>已有账号？<a href="{{ url_for('auth.login') }}">立即登录</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

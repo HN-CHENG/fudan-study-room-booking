@@ -1,0 +1,1 @@
+from app.routes import auth, student, admin, main 

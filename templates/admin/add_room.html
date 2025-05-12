@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}添加自习室 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>添加自习室</h2>
+        <p class="text-muted">添加一个新的自习室到系统中</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">自习室名称 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="form-text">例如: 光华楼自习室A</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="building" class="form-label">所在教学楼 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="building" name="building" required>
+                        <div class="form-text">例如: 光华楼</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="floor" class="form-label">楼层 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="floor" name="floor" min="1" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="capacity" class="form-label">座位容量 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" min="1" required>
+                        <div class="form-text">最大可容纳座位数量</div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_24h" name="is_24h">
+                        <label class="form-check-label" for="is_24h">24小时开放</label>
+                    </div>
+                    
+                    <div id="time-fields">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="open_time" class="form-label">开放时间 <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" id="open_time" name="open_time" value="07:00">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="close_time" class="form-label">关闭时间 <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" id="close_time" name="close_time" value="22:00">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.rooms') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> 返回
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> 保存
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const is24hCheckbox = document.getElementById('is_24h');
+        const timeFields = document.getElementById('time-fields');
+        
+        function toggleTimeFields() {
+            if (is24hCheckbox.checked) {
+                timeFields.style.display = 'none';
+            } else {
+                timeFields.style.display = 'block';
+            }
+        }
+        
+        // 初始化
+        toggleTimeFields();
+        
+        // 监听复选框变化
+        is24hCheckbox.addEventListener('change', toggleTimeFields);
+    });
+</script>
+{% endblock %} 

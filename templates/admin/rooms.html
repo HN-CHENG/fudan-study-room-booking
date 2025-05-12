@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}自习室管理 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <h2>自习室管理</h2>
+        <a href="{{ url_for('admin.add_room') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> 添加自习室
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                {% if rooms %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>名称</th>
+                                    <th>教学楼</th>
+                                    <th>楼层</th>
+                                    <th>座位数</th>
+                                    <th>开放时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for room in rooms %}
+                                <tr>
+                                    <td>{{ room.id }}</td>
+                                    <td>{{ room.name }}</td>
+                                    <td>{{ room.building }}</td>
+                                    <td>{{ room.floor }}</td>
+                                    <td>{{ room.seats.count() }}/{{ room.capacity }}</td>
+                                    <td>
+                                        {% if room.is_24h %}
+                                            <span class="badge bg-info">24小时</span>
+                                        {% else %}
+                                            {{ room.open_time.strftime('%H:%M') }} - {{ room.close_time.strftime('%H:%M') }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if room.is_active %}
+                                            <span class="badge bg-success">启用</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">禁用</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('admin.edit_room', room_id=room.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> 编辑
+                                            </a>
+                                            <a href="{{ url_for('admin.room_seats', room_id=room.id) }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-chair"></i> 座位
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">暂无自习室</h5>
+                        <p>系统中还没有添加自习室。点击上方"添加自习室"按钮开始添加。</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

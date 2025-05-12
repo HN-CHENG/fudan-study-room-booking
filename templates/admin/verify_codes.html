@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}签到码管理 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>签到码管理</h2>
+        <p class="text-muted">管理自习室签到验证码</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                {% if rooms %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>自习室</th>
+                                    <th>当前签到码</th>
+                                    <th>二维码</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for room in rooms %}
+                                <tr>
+                                    <td>{{ room.name }}<br><small class="text-muted">{{ room.building }}</small></td>
+                                    <td>
+                                        {% if room.verify_code %}
+                                            <h4><span class="badge bg-success">{{ room.verify_code }}</span></h4>
+                                        {% else %}
+                                            <span class="text-muted">尚未生成</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if room.qr_code_path %}
+                                            <img src="{{ url_for('static', filename=room.qr_code_path.replace('static/', '')) }}" alt="签到二维码" width="120">
+                                        {% else %}
+                                            <span class="text-muted">无二维码</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ url_for('admin.generate_code', room_id=room.id) }}">
+                                            <button type="submit" class="btn btn-primary" onclick="return confirm('确定要为{{ room.name }}生成新的签到码吗？');">
+                                                <i class="fas fa-sync-alt me-1"></i> 生成新签到码
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">暂无自习室</h5>
+                        <p>系统中还没有添加自习室。请先添加自习室。</p>
+                        <a href="{{ url_for('admin.rooms') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> 管理自习室
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">签到码使用说明</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>签到码显示</h5>
+                        <p>签到码应显示在自习室的显示屏上，方便学生签到。</p>
+                        <ul>
+                            <li>每日凌晨系统会自动为所有自习室生成新的签到码</li>
+                            <li>管理员也可以手动生成新的签到码</li>
+                            <li>签到码由6位字母和数字组成</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>二维码使用</h5>
+                        <p>可以将二维码打印出来，张贴在自习室内，方便学生扫码签到。</p>
+                        <ul>
+                            <li>点击二维码可以查看大图</li>
+                            <li>每次生成新签到码时，二维码也会更新</li>
+                            <li>建议将二维码放置在自习室入口处或明显位置</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

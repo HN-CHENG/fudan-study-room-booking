@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}个人资料 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title mb-4">个人资料</h2>
+                
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-user-circle fa-6x text-primary"></i>
+                            <h4 class="mt-2">{{ current_user.username }}</h4>
+                            <p class="text-muted">{{ current_user.student_id }}</p>
+                            {% if current_user.is_admin %}
+                                <span class="badge bg-danger">管理员</span>
+                            {% else %}
+                                <span class="badge bg-primary">学生</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <form method="post">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">姓名</label>
+                                <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">邮箱</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                                <div class="form-text">请使用复旦邮箱（@fudan.edu.cn）</div>
+                            </div>
+                            
+                            <hr>
+                            <h5>修改密码（可选）</h5>
+                            
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">当前密码</label>
+                                <input type="password" class="form-control" id="current_password" name="current_password">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="new_password" class="form-label">新密码</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password">
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">保存修改</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                {% if not current_user.is_admin %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h4>账户统计</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                注册时间
+                                <span>{{ current_user.created_at.strftime('%Y-%m-%d') }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                总预约次数
+                                <span class="badge bg-primary rounded-pill">{{ current_user.bookings.count() }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                违约次数
+                                <span class="badge bg-danger rounded-pill">{{ current_user.violation_count }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

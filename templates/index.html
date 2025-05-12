@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="bg-light p-5 rounded-lg">
+            <h1 class="display-4">复旦大学自习室预约系统</h1>
+            <p class="lead">便捷预约自习座位，提高资源利用率</p>
+            <hr class="my-4">
+            <p>本系统提供自习室座位在线预约、签到和管理，让每一个座位都能高效利用。</p>
+            {% if not is_authenticated %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">立即注册</a>
+                <a class="btn btn-outline-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">登录</a>
+            {% else %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('student.search') }}" role="button">开始预约</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="mb-4">当前可用自习室</h2>
+        
+        {% if rooms %}
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for room in rooms %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ room.name }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ room.building }}</h6>
+                                <p class="card-text">
+                                    可用座位: <span class="badge bg-success">{{ room.available_seats }}/{{ room.total_seats }}</span>
+                                </p>
+                                {% if is_authenticated %}
+                                    <a href="{{ url_for('student.search', building=room.building) }}" class="btn btn-sm btn-outline-primary">查看详情</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                当前没有可用的自习室或所有座位已满。请稍后再试。
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">灵活预约</h5>
+                <p class="card-text">以小时为单位，最多提前一周预约，方便您的学习安排。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-qrcode fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">便捷签到</h5>
+                <p class="card-text">通过验证码或扫描二维码快速签到，高效使用您的预约时间。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-plug fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">电源座位</h5>
+                <p class="card-text">标记带有电源插座的座位，为您的电子设备提供便利。</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

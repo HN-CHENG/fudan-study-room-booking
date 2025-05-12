@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}批量添加座位 - {{ room.name }} - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>批量添加座位</h2>
+        <p class="text-muted">为 {{ room.name }} 添加多个座位</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="start_num" class="form-label">起始座位号 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="start_num" name="start_num" min="1" value="1" required>
+                        <div class="form-text">新添加的座位将从此号码开始编号</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="count" class="form-label">添加数量 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="count" name="count" min="1" max="{{ room.capacity - room.seats.count() }}" value="1" required>
+                        <div class="form-text">最多可添加 {{ room.capacity - room.seats.count() }} 个座位</div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="has_power" name="has_power">
+                        <label class="form-check-label" for="has_power">所有座位都有电源插座</label>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.room_seats', room_id=room.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> 返回
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> 添加座位
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">座位布局预览</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> 此处将显示添加后的座位布局预览
+                </div>
+                
+                <div id="seats-preview" class="row row-cols-2 row-cols-md-5 g-3">
+                    <!-- 预览将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startNumInput = document.getElementById('start_num');
+        const countInput = document.getElementById('count');
+        const hasPowerCheckbox = document.getElementById('has_power');
+        const seatsPreviewDiv = document.getElementById('seats-preview');
+        
+        // 更新预览
+        function updatePreview() {
+            const startNum = parseInt(startNumInput.value) || 1;
+            const count = parseInt(countInput.value) || 1;
+            const hasPower = hasPowerCheckbox.checked;
+            
+            // 清空预览区域
+            seatsPreviewDiv.innerHTML = '';
+            
+            // 添加新的预览座位
+            for (let i = 0; i < count; i++) {
+                const seatNumber = startNum + i;
+                
+                const colDiv = document.createElement('div');
+                colDiv.className = 'col';
+                
+                const cardDiv = document.createElement('div');
+                cardDiv.className = `card h-100 ${hasPower ? 'border-warning' : ''}`;
+                
+                const cardBodyDiv = document.createElement('div');
+                cardBodyDiv.className = 'card-body text-center';
+                
+                const title = document.createElement('h5');
+                title.className = 'card-title';
+                title.textContent = `座位 ${seatNumber}`;
+                
+                const powerText = document.createElement('p');
+                powerText.className = 'card-text';
+                if (hasPower) {
+                    powerText.innerHTML = '<span class="text-warning"><i class="fas fa-plug"></i> 有电源</span>';
+                } else {
+                    powerText.innerHTML = '<span class="text-muted"><i class="fas fa-times"></i> 无电源</span>';
+                }
+                
+                cardBodyDiv.appendChild(title);
+                cardBodyDiv.appendChild(powerText);
+                cardDiv.appendChild(cardBodyDiv);
+                colDiv.appendChild(cardDiv);
+                seatsPreviewDiv.appendChild(colDiv);
+            }
+        }
+        
+        // 初始更新
+        updatePreview();
+        
+        // 监听输入变化
+        startNumInput.addEventListener('input', updatePreview);
+        countInput.addEventListener('input', updatePreview);
+        hasPowerCheckbox.addEventListener('change', updatePreview);
+    });
+</script>
+{% endblock %}

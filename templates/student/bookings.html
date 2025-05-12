@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}我的预约 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>我的预约</h2>
+        <p class="text-muted">查看和管理您的自习室座位预约</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs mb-4" id="bookingTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+                    当前预约
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                    历史预约
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="bookingTabsContent">
+            <div class="tab-pane fade show active" id="active" role="tabpanel">
+                {% if active_bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>自习室</th>
+                                    <th>座位号</th>
+                                    <th>日期</th>
+                                    <th>时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in active_bookings %}
+                                <tr>
+                                    <td>{{ booking.seat.room.name }}</td>
+                                    <td>{{ booking.seat.seat_number }}</td>
+                                    <td>{{ booking.start_time.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ booking.start_time.strftime('%H:%M') }} - {{ booking.end_time.strftime('%H:%M') }}</td>
+                                    <td>
+                                        {% if booking.status == 'confirmed' %}
+                                            <span class="badge bg-warning">待签到</span>
+                                        {% elif booking.status == 'checked_in' %}
+                                            <span class="badge bg-success">已签到</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if booking.status == 'confirmed' %}
+                                            {% if booking.can_check_in() %}
+                                                <a href="{{ url_for('student.checkin') }}" class="btn btn-sm btn-primary">签到</a>
+                                            {% endif %}
+                                            <form method="post" action="{{ url_for('student.cancel_booking', booking_id=booking.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确定要取消此预约吗？')">取消</button>
+                                            </form>
+                                        {% elif booking.status == 'checked_in' %}
+                                            <span class="text-success">
+                                                <i class="fas fa-check-circle"></i> 
+                                                剩余时间: {{ booking.remaining_time().seconds // 60 }}分钟
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        您当前没有活跃的预约。
+                        <a href="{{ url_for('student.search') }}" class="alert-link">立即预约座位</a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="tab-pane fade" id="history" role="tabpanel">
+                {% if history_bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>自习室</th>
+                                    <th>座位号</th>
+                                    <th>日期</th>
+                                    <th>时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in history_bookings %}
+                                <tr>
+                                    <td>{{ booking.seat.room.name }}</td>
+                                    <td>{{ booking.seat.seat_number }}</td>
+                                    <td>{{ booking.start_time.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ booking.start_time.strftime('%H:%M') }} - {{ booking.end_time.strftime('%H:%M') }}</td>
+                                    <td>
+                                        {% if booking.status == 'completed' %}
+                                            <span class="badge bg-success">已完成</span>
+                                        {% elif booking.status == 'cancelled' %}
+                                            <span class="badge bg-secondary">已取消</span>
+                                        {% elif booking.status == 'expired' %}
+                                            <span class="badge bg-danger">已过期</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form action="{{ url_for('student.search') }}" method="get" class="d-inline">
+                                            <input type="hidden" name="building" value="{{ booking.seat.room.building }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">再次预约</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        您没有历史预约记录。
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">预约提示</h5>
+                <ul>
+                    <li>预约开始前15分钟会收到提醒通知</li>
+                    <li>请在预约开始后15分钟内完成签到，否则系统将自动取消预约</li>
+                    <li>多次未按时签到将被记录违约行为</li>
+                    <li>如需取消预约，请提前操作，避免资源浪费</li>
+                </ul>
+                <a href="{{ url_for('student.search') }}" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i> 查找可用座位
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

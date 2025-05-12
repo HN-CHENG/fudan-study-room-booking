@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}搜索座位 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>搜索自习座位</h2>
+        <p class="text-muted">查找并预约可用的自习室座位</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">搜索条件</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('student.search') }}" method="get">
+                    <div class="mb-3">
+                        <label for="building" class="form-label">教学楼</label>
+                        <select class="form-select" id="building" name="building">
+                            <option value="">所有教学楼</option>
+                            {% for building_name in buildings %}
+                                <option value="{{ building_name }}" {% if selected_building == building_name %}selected{% endif %}>{{ building_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date" class="form-label">日期</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ date }}" min="{{ now().date().isoformat() }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="start_hour" class="form-label">开始时间</label>
+                        <select class="form-select" id="start_hour" name="start_hour">
+                            {% for hour in range(7, 23) %}
+                                <option value="{{ hour }}" {% if start_hour == hour %}selected{% endif %}>{{ "%02d"|format(hour) }}:00</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">预约时长</label>
+                        <select class="form-select" id="duration" name="duration">
+                            {% for hours in range(1, 5) %}
+                                <option value="{{ hours }}" {% if duration == hours %}selected{% endif %}>{{ hours }} 小时</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="has_power" name="has_power" {% if has_power %}checked{% endif %}>
+                        <label class="form-check-label" for="has_power">只显示有电源的座位</label>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> 搜索座位
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">搜索结果</h5>
+            </div>
+            <div class="card-body">
+                {% if rooms %}
+                    <div class="accordion" id="roomsAccordion">
+                        {% for room in rooms %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ room.id }}">
+                                    <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ room.id }}">
+                                        {{ room.name }} ({{ room.building }}, {{ room.floor }}楼)
+                                        <span class="badge bg-success ms-2">{{ room.total_available }}个可用座位</span>
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ room.id }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" data-bs-parent="#roomsAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row row-cols-2 row-cols-md-4 g-3">
+                                            {% for seat in room.available_seats %}
+                                                <div class="col">
+                                                    <div class="card h-100 {% if seat.has_power_outlet %}border-warning{% endif %}">
+                                                        <div class="card-body text-center">
+                                                            <h5 class="card-title">座位 {{ seat.seat_number }}</h5>
+                                                            {% if seat.has_power_outlet %}
+                                                                <p class="card-text text-warning">
+                                                                    <i class="fas fa-plug"></i> 有电源
+                                                                </p>
+                                                            {% else %}
+                                                                <p class="card-text text-muted">
+                                                                    <i class="fas fa-times"></i> 无电源
+                                                                </p>
+                                                            {% endif %}
+                                                            <form action="{{ url_for('student.book') }}" method="post">
+                                                                <input type="hidden" name="seat_id" value="{{ seat.id }}">
+                                                                <input type="hidden" name="date" value="{{ date }}">
+                                                                <input type="hidden" name="start_hour" value="{{ start_hour }}">
+                                                                <input type="hidden" name="duration" value="{{ duration }}">
+                                                                <button type="submit" class="btn btn-sm btn-primary">预约此座位</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        没有找到符合条件的座位。请尝试调整搜索条件。
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 设置日期选择器的最小值为今天
+        const dateInput = document.getElementById('date');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+        
+        // 如果没有设置日期，默认为今天
+        if (!dateInput.value) {
+            dateInput.value = today;
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}座位管理 - {{ room.name }} - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2>{{ room.name }} 座位管理</h2>
+            <p class="text-muted">{{ room.building }} {{ room.floor }}楼 | 总座位数: {{ seats|length }}/{{ room.capacity }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin.add_seats', room_id=room.id) }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> 批量添加座位
+            </a>
+            <a href="{{ url_for('admin.rooms') }}" class="btn btn-outline-secondary ms-2">
+                <i class="fas fa-arrow-left me-1"></i> 返回自习室列表
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                {% if seats %}
+                    <div class="row row-cols-2 row-cols-md-5 g-3">
+                        {% for seat in seats %}
+                            <div class="col">
+                                <div class="card h-100 {% if not seat.is_active %}bg-light{% elif seat.has_power_outlet %}border-warning{% endif %}">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">座位 {{ seat.seat_number }}</h5>
+                                        <p class="card-text">
+                                            {% if seat.has_power_outlet %}
+                                                <span class="text-warning"><i class="fas fa-plug"></i> 有电源</span>
+                                            {% else %}
+                                                <span class="text-muted"><i class="fas fa-times"></i> 无电源</span>
+                                            {% endif %}
+                                        </p>
+                                        <p class="card-text">
+                                            {% if seat.is_active %}
+                                                <span class="badge bg-success">可用</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">禁用</span>
+                                            {% endif %}
+                                        </p>
+                                        <div class="mt-3">
+                                            <form method="post" action="{{ url_for('admin.toggle_seat', seat_id=seat.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm {% if seat.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                                                    {% if seat.is_active %}
+                                                        <i class="fas fa-ban"></i> 禁用
+                                                    {% else %}
+                                                        <i class="fas fa-check"></i> 启用
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{{ url_for('admin.toggle_power', seat_id=seat.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-warning">
+                                                    {% if seat.has_power_outlet %}
+                                                        <i class="fas fa-times"></i> 移除电源
+                                                    {% else %}
+                                                        <i class="fas fa-plug"></i> 添加电源
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">暂无座位</h5>
+                        <p>该自习室还没有添加座位。点击"批量添加座位"按钮开始添加。</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if seats %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">座位统计信息</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h4>{{ seats|length }}</h4>
+                        <p>总座位数</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>{{ seats|selectattr('is_active', 'equalto', True)|list|length }}</h4>
+                        <p>可用座位</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>{{ seats|selectattr('has_power_outlet', 'equalto', True)|list|length }}</h4>
+                        <p>带电源座位</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>{{ room.capacity - seats|length }}</h4>
+                        <p>剩余容量</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

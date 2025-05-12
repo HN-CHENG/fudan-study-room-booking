@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}座位签到 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>座位签到</h2>
+        <p class="text-muted">完成预约座位的签到，以确认您的使用</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-body">
+                {% if bookings %}
+                    <h5 class="card-title mb-3">可签到的预约</h5>
+                    <form method="post" action="{{ url_for('student.checkin') }}">
+                        <div class="mb-3">
+                            <label for="booking_id" class="form-label">选择预约</label>
+                            <select class="form-select" id="booking_id" name="booking_id" required>
+                                <option value="">-- 请选择 --</option>
+                                {% for booking in bookings %}
+                                    <option value="{{ booking.id }}">
+                                        {{ booking.seat.room.name }} - 座位{{ booking.seat.seat_number }} 
+                                        ({{ booking.start_time.strftime('%H:%M') }} - {{ booking.end_time.strftime('%H:%M') }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="verify_code" class="form-label">签到码</label>
+                            <input type="text" class="form-control" id="verify_code" name="verify_code" required>
+                            <div class="form-text">请输入自习室显示屏上的签到验证码</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check-circle me-1"></i> 确认签到
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <h5>签到说明</h5>
+                        <p>1. 请查看自习室内的显示屏获取当前签到码</p>
+                        <p>2. 您也可以扫描自习室内的二维码完成签到</p>
+                        <p>3. 请在预约开始后15分钟内完成签到</p>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">没有可签到的预约</h5>
+                        <p>您当前没有需要签到的预约，可能的原因：</p>
+                        <ul>
+                            <li>您还没有进行座位预约</li>
+                            <li>预约时间尚未开始（需要在预约开始前15分钟到预约开始后15分钟内签到）</li>
+                            <li>预约已经超时</li>
+                            <li>您已经完成签到</li>
+                        </ul>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('student.bookings') }}" class="btn btn-outline-primary">查看我的预约</a>
+                            <a href="{{ url_for('student.search') }}" class="btn btn-primary">预约新座位</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

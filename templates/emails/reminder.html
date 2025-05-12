@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>自习室预约提醒</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        
+        .booking-details {
+            background-color: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+        
+        .highlight {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #0d6efd;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>复旦大学自习室预约系统</h1>
+    </div>
+    
+    <div class="content">
+        <p>尊敬的 {{ user.username }}：</p>
+        
+        <p>{{ message }}</p>
+        
+        <div class="booking-details">
+            <p><strong>预约详情：</strong></p>
+            <p>自习室：<span class="highlight">{{ booking.seat.room.name }}</span></p>
+            <p>座位号：<span class="highlight">{{ booking.seat.seat_number }}</span></p>
+            <p>日期：{{ booking.start_time.strftime('%Y-%m-%d') }}</p>
+            <p>时间：{{ booking.start_time.strftime('%H:%M') }} - {{ booking.end_time.strftime('%H:%M') }}</p>
+            <p>状态：<span class="highlight">{{ booking.status }}</span></p>
+        </div>
+        
+        {% if booking.status == 'confirmed' %}
+            <p>请记得按时到达并完成签到。签到方式：</p>
+            <ol>
+                <li>在自习室中查看显示屏上的签到码</li>
+                <li>打开自习室预约系统，进入"座位签到"页面</li>
+                <li>输入签到码完成签到</li>
+            </ol>
+            <p>您也可以通过扫描自习室内的二维码完成签到。</p>
+            
+            <a href="{{ url_for('student.checkin', _external=True) }}" class="btn">立即签到</a>
+        {% endif %}
+        
+        <p>如有任何问题，请联系管理员或回复此邮件。</p>
+        
+        <p>祝学习愉快！</p>
+        <p>复旦大学自习室预约系统团队</p>
+    </div>
+    
+    <div class="footer">
+        <p>此邮件由系统自动发送，请勿直接回复。</p>
+        <p>&copy; {{ now().year }} 复旦大学自习室预约系统</p>
+    </div>
+</body>
+</html> 

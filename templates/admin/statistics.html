@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}使用统计 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>使用统计</h2>
+        <p class="text-muted">自习室使用数据统计和分析</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link {% if period == 'day' %}active{% endif %}" href="{{ url_for('admin.statistics', period='day') }}">今日</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if period == 'week' %}active{% endif %}" href="{{ url_for('admin.statistics', period='week') }}">本周</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if period == 'month' %}active{% endif %}" href="{{ url_for('admin.statistics', period='month') }}">本月</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ title }}</h5>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">预约状态分布</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>状态</th>
+                                                <th>数量</th>
+                                                <th>占比</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% set total_count = status_data.values()|sum %}
+                                            {% for status, count in status_data.items() %}
+                                            <tr>
+                                                <td>
+                                                    {% if status == 'confirmed' %}
+                                                        <span class="badge bg-warning">待签到</span>
+                                                    {% elif status == 'checked_in' %}
+                                                        <span class="badge bg-success">已签到</span>
+                                                    {% elif status == 'completed' %}
+                                                        <span class="badge bg-primary">已完成</span>
+                                                    {% elif status == 'cancelled' %}
+                                                        <span class="badge bg-secondary">已取消</span>
+                                                    {% elif status == 'expired' %}
+                                                        <span class="badge bg-danger">已过期</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ count }}</td>
+                                                <td>
+                                                    {% if total_count > 0 %}
+                                                        {{ (count / total_count * 100)|round(1) }}%
+                                                    {% else %}
+                                                        0%
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                            <tr class="table-secondary">
+                                                <td><strong>总计</strong></td>
+                                                <td><strong>{{ total_count }}</strong></td>
+                                                <td><strong>100%</strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="progress mt-3">
+                                    {% if total_count > 0 %}
+                                        {% if 'confirmed' in status_data %}
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ status_data['confirmed'] / total_count * 100 }}%"></div>
+                                        {% endif %}
+                                        {% if 'checked_in' in status_data %}
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ status_data['checked_in'] / total_count * 100 }}%"></div>
+                                        {% endif %}
+                                        {% if 'completed' in status_data %}
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ status_data['completed'] / total_count * 100 }}%"></div>
+                                        {% endif %}
+                                        {% if 'cancelled' in status_data %}
+                                            <div class="progress-bar bg-secondary" role="progressbar" style="width: {{ status_data['cancelled'] / total_count * 100 }}%"></div>
+                                        {% endif %}
+                                        {% if 'expired' in status_data %}
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ status_data['expired'] / total_count * 100 }}%"></div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">自习室使用情况</h6>
+                            </div>
+                            <div class="card-body">
+                                {% if room_usage %}
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>自习室</th>
+                                                    <th>预约次数</th>
+                                                    <th>占比</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% set room_total = room_usage|map(attribute=1)|sum %}
+                                                {% for room_name, count in room_usage %}
+                                                <tr>
+                                                    <td>{{ room_name }}</td>
+                                                    <td>{{ count }}</td>
+                                                    <td>
+                                                        {% if room_total > 0 %}
+                                                            {{ (count / room_total * 100)|round(1) }}%
+                                                        {% else %}
+                                                            0%
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                                <tr class="table-secondary">
+                                                    <td><strong>总计</strong></td>
+                                                    <td><strong>{{ room_total }}</strong></td>
+                                                    <td><strong>100%</strong></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i> 该时间段内没有自习室使用记录
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">违约用户排名</h5>
+            </div>
+            <div class="card-body">
+                {% if violation_users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>排名</th>
+                                    <th>学号</th>
+                                    <th>姓名</th>
+                                    <th>邮箱</th>
+                                    <th>违约次数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in violation_users %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ user.student_id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <span class="badge bg-danger">{{ user.violation_count }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i> 暂无违约用户记录
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

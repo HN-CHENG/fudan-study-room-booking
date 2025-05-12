@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}常用座位 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>常用座位</h2>
+        <p class="text-muted">查看和快速预约您最常使用的座位</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                {% if favorite_seats %}
+                    <h5 class="card-title mb-3">您最近一个月内常用的座位</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>教学楼</th>
+                                    <th>自习室</th>
+                                    <th>座位号</th>
+                                    <th>电源</th>
+                                    <th>使用次数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for seat in favorite_seats %}
+                                <tr>
+                                    <td>{{ seat.building }}</td>
+                                    <td>{{ seat.room_name }}</td>
+                                    <td>{{ seat.seat_number }}</td>
+                                    <td>
+                                        {% if seat.has_power_outlet %}
+                                            <span class="text-success"><i class="fas fa-plug"></i> 有</span>
+                                        {% else %}
+                                            <span class="text-muted"><i class="fas fa-times"></i> 无</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ seat.usage_count }} 次</td>
+                                    <td>
+                                        <form action="{{ url_for('student.search') }}" method="get" class="d-inline">
+                                            <input type="hidden" name="building" value="{{ seat.building }}">
+                                            <button type="submit" class="btn btn-sm btn-primary">查找可用</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">暂无常用座位</h5>
+                        <p>您最近一个月内没有预约记录。开始使用自习室预约系统，我们将为您记录常用座位，方便您快速预约。</p>
+                        <hr>
+                        <a href="{{ url_for('student.search') }}" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> 立即预约座位
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if favorite_seats %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">使用提示</h5>
+                <ul>
+                    <li>常用座位是基于您最近一个月内的预约记录自动生成的</li>
+                    <li>使用次数越多的座位，排名越靠前</li>
+                    <li>选择"查找可用"可以快速查找相同教学楼的可用座位</li>
+                    <li>如果您喜欢特定的座位，建议提前预约，以免被他人占用</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

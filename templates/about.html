@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}关于系统 - 复旦大学自习室预约系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title text-center mb-4">关于自习室预约系统</h1>
+                
+                <h4 class="mb-3">系统背景</h4>
+                <p>
+                    为了提高复旦大学自习室座位的利用率，解决"一座难求"与"占座却不在"的问题，
+                    我们开发了这套自习室座位预约系统。通过信息技术手段，实现座位的合理分配和高效利用。
+                </p>
+                
+                <h4 class="mb-3">系统功能</h4>
+                <ul>
+                    <li>学生可以查看空闲座位并进行预约</li>
+                    <li>支持通过验证码或扫描二维码签到</li>
+                    <li>对未按时签到的预约自动取消并释放座位</li>
+                    <li>提供预约即将开始和签到提醒</li>
+                    <li>标记带有电源插座的座位</li>
+                    <li>管理员可以管理自习室、查看统计数据</li>
+                </ul>
+                
+                <h4 class="mb-3">使用说明</h4>
+                <p>
+                    <strong>预约规则：</strong><br>
+                    - 预约以小时为单位，最短1小时，最长4小时<br>
+                    - 预约开始前15分钟会收到提醒<br>
+                    - 必须在预约开始后15分钟内签到，否则系统自动取消预约<br>
+                    - 若多次未签到，将记录违约行为
+                </p>
+                
+                <p>
+                    <strong>签到方式：</strong><br>
+                    - 在自习室大屏幕查看当日签到码<br>
+                    - 在系统中输入签到码完成签到<br>
+                    - 或使用微信扫描自习室二维码完成签到
+                </p>
+                
+                <h4 class="mb-3">联系我们</h4>
+                <p>
+                    如有任何问题或建议，请发送邮件至：<a href="mailto:studyroom@fudan.edu.cn">studyroom@fudan.edu.cn</a>
+                </p>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">返回首页</a>
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary ms-2">立即注册</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
