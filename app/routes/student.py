@@ -42,10 +42,11 @@ def search():
     duration = request.args.get('duration')
     
     # 默认为今天
+    today = datetime.now().date()
     if date_str:
         date = datetime.fromisoformat(date_str).date()
     else:
-        date = datetime.now().date()
+        date = today
     
     # 默认为当前时间的下一个整点
     if start_hour:
@@ -125,7 +126,8 @@ def search():
                           duration=duration,
                           has_power=has_power,
                           selected_building=building,
-                          buildings=buildings)
+                          buildings=buildings,
+                          today=today.isoformat())
 
 @bp.route('/book', methods=['POST'])
 @login_required
