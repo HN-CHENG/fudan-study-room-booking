@@ -23,7 +23,7 @@ def register():
             error = '需要学号'
         elif not username:
             error = '需要用户名'
-        elif not email or '@fudan.edu.cn' not in email:
+        elif not email or ('@fudan.edu.cn' not in email and '@m.fudan.edu.cn' not in email):
             error = '需要有效的复旦大学邮箱'
         elif not password:
             error = '需要密码'
@@ -98,7 +98,7 @@ def profile():
         
         if not username:
             error = '需要用户名'
-        elif not email or '@fudan.edu.cn' not in email:
+        elif not email or ('@fudan.edu.cn' not in email and '@m.fudan.edu.cn' not in email):
             error = '需要有效的复旦大学邮箱'
         
         if email != current_user.email and User.query.filter_by(email=email).first():
